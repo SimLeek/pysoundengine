@@ -1,18 +1,37 @@
 import subprocess
 import os
+from threading import Thread
+import localpubsub as lps
 
 NULL_PIPE = open(os.devnull, 'w')
+
+SoundErrorPub = lps.VariablePub()
+
+
+def ffmpeg_err_fun(line):
+    if 'No such file or directory' in line:
+        SoundErrorPub.publish(RuntimeError(line))
+        raise RuntimeError(line)
+
+
+def process_output(process,  # type: subprocess.Popen
+                   err_fun=ffmpeg_err_fun):
+    #  https://stackoverflow.com/a/34317431
+    polled = True
+    while polled:
+        process.wait()
+        out, err = process.communicate()
+        err = str(err).replace('\\n', '\n')
+        err = str(err).replace('\\r', '\n')
+        for line in err.splitlines():
+            err_fun(line)
+        polled = process.poll()
 
 
 def ffplay_err_catch(f):
     def fun(*args, **kwargs):
         p = f(*args, **kwargs)
-        out, err = p.communicate(input=None, timeout=0.1)
-        err = str(err).replace('\\n', '\n')
-        err = str(err).replace('\\r', '\n')
-        for l in str(err).splitlines():
-            if 'No such file or directory' in l:
-                raise RuntimeError(l)
+        Thread(target=process_output, args=[p]).start()
         return p
 
     return fun
@@ -45,9 +64,3 @@ def play_file(filename):
 def loop_file(filename, loops):
     return subprocess.Popen(["ffplay", "-nodisp", "-loop", str(loops), filename], stderr=subprocess.PIPE,
                             stdout=NULL_PIPE)
-
-
-if __name__ == '__main__':
-    play_file('test.mp3')
-    loop_file('test.flac', 9999)
-    input("Play forever?")
