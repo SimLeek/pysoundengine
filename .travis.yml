@@ -1,23 +1,24 @@
 language: python
 dist: xenial
 sudo: true
-
 cache: pip
 python:
-  - '2.7'
-  - '3.5'
-  - '3.6'
-  - '3.7'
+- '2.7'
+- '3.5'
+- '3.6'
+- '3.7'
 install:
-  - pip install -r requirements.txt
+- pip install -r requirements.txt
 script:
-  - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then export CIBW_BUILD='cp27*'; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then export CIBW_BUILD='cp35*'; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then export CIBW_BUILD='cp36*'; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then export CIBW_BUILD='cp37*'; fi
-  - pip install cibuildwheel==0.10.1
-  - cibuildwheel --output-dir wheelhouse
+- if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then export CIBW_BUILD='cp27*'; fi
+- if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then export CIBW_BUILD='cp35*'; fi
+- if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then export CIBW_BUILD='cp36*'; fi
+- if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then export CIBW_BUILD='cp37*'; fi
+- pip install cibuildwheel==0.10.1
+- cibuildwheel --output-dir wheelhouse
 deploy:
   provider: pypi
   user: SimLeek
   skip_existing: true
+  password:
+    secure: VCdDBGKy5WZVtKAR3Z9zYP/42Twa6+ReuU05h2vLZSl//5MVA4FpCbWAWRfFUEqMOpwoXluw/PVULOgLdgxcsK/9ez0zMb6fE71dLQEyox94fk3Frdgh7U9950EUCrCc/C9J+/8++wlFa+7E6ajuQ3WueoVusgIu1iNs6B/RM4T6UMxJonN+R0pgYuh7pBPthtc0nIzo3Soy6zE0vAwOF39oda76KtqHnbowXq90K1ifi6Y/swJtPNG2esw8oi2sW3S1NwMFXEyx2Uz8vCTm+GNex+H3vhmxskeoDDPeDMIFnHhIqgimMMIAc0P+MOeLY4C4o/MyUWtmCRkmQkn2TgzFWo7XJliaoUMf2zr9rkWFvghGWHI3E7OBREDB4rK9a9mR40Kdp+dlILhdT0l7shjSsjbzRnH31IUD5e+aVtYzBvg3BWfWYJZSSXkyPuelGxTcf76ihME02azYTeMF4hjFOBpJuIUsPCwht2K+fA5BDDfZ04eBdNBVhAW00ynMDnhzCBN2a3meXO7otp1hcuh0Zoh5bwkz0YItQsvAXqAxjA1vTK6dEoGmMxtxg4LqXOfqYHCuT5umUZsPa+90cZSYHPsnfo74z5gRxG3WLc/MFlOXypmQ095JR29W81hNL2vh/oqxIxryxd9A1fTraTS1LN05D4RK++n6hgIErus=
