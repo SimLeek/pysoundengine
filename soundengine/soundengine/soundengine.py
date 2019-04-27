@@ -43,7 +43,7 @@ def unix_dep_catch(f):
             f2 = ffplay_err_catch(f)
             f2(*args, **kwargs)
         except FileNotFoundError as fnf:
-            if "ffplay" in fnf.strerror:
+            if fnf.strerror is not None and "ffplay" in fnf.strerror:
                 raise RuntimeError(
                     "ffplay not found. If in Ubuntu, please run `sudo apt install ffmpeg` in a terminal. "
                     "If in Mac OS, run `brew install ffmpeg` instead."
@@ -57,10 +57,18 @@ def unix_dep_catch(f):
 
 @unix_dep_catch
 def play_file(filename):
-    return subprocess.Popen(["ffplay", "-nodisp", "-autoexit", filename], stderr=subprocess.PIPE, stdout=NULL_PIPE)
+    if os.path.isfile(filename):
+        return subprocess.Popen(["ffplay", "-nodisp", "-autoexit", '--', filename], stderr=subprocess.PIPE,
+                                stdout=NULL_PIPE)
+    else:
+        raise FileNotFoundError("Could not find file: {}".format(filename))
 
 
 @unix_dep_catch
 def loop_file(filename, loops):
-    return subprocess.Popen(["ffplay", "-nodisp", "-loop", str(loops), filename], stderr=subprocess.PIPE,
-                            stdout=NULL_PIPE)
+    assert isinstance(loops, int)
+    if os.path.isfile(filename):
+        return subprocess.Popen(["ffplay", "-nodisp", "-loop", str(loops), '--', filename], stderr=subprocess.PIPE,
+                                stdout=NULL_PIPE)
+    else:
+        raise FileNotFoundError("Could not find file: {}".format(filename))
